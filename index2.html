@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday! ❤️</title>
+    <!-- مكتبة المفرقعات والاحتفال Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            margin: 0; background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff; display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; text-align: center; padding: 20px; overflow-x: hidden;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px;
+            padding: 25px 20px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            z-index: 10; position: relative;
+        }
+        h1 { color: #ff79c6; font-size: 22px; margin-bottom: 10px; }
+        p { color: #f8f8f2; font-size: 15px; line-height: 1.6; }
+        input {
+            width: 85%; padding: 12px; margin: 15px 0; border-radius: 10px;
+            border: none; outline: none; text-align: center; font-size: 16px;
+            background: #ffffff; color: #000; font-weight: bold;
+        }
+        button {
+            background: #ff79c6; color: #fff; border: none; padding: 12px 25px;
+            border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer;
+            transition: 0.3s; margin: 5px; width: 100%;
+        }
+        .msg-btn { background: #6272a4; margin: 6px 0; }
+        .hidden { display: none !important; }
+        .interactive-zone { margin-top: 20px; position: relative; height: 90px; }
+        .btn-yes { background: #50fa7b; color: #1a1a2e; width: auto; position: absolute; right: 15%; top: 30px; }
+        .btn-no { background: #ff5555; width: auto; position: absolute; left: 15%; top: 30px; }
+        
+        /* تصميم قالب الكيك الشمعة */
+        .cake-container {
+            margin: 15px auto; width: 100px; height: 100px; position: relative;
+        }
+        .cake {
+            width: 80px; height: 50px; background: #ffb86c; border-radius: 10px 10px 0 0;
+            position: absolute; bottom: 0; left: 10px; box-shadow: inset 0 8px 0 #ff79c6;
+        }
+        .cake::before {
+            content: ''; position: absolute; top: -15px; left: 35px;
+            width: 10px; height: 15px; background: #f1fa8c; border-radius: 3px;
+        }
+        .flame {
+            position: absolute; top: -30px; left: 37px; width: 6px; height: 12px;
+            background: #ffb86c; border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 10px #ffb86c, 0 0 20px #ff5555;
+            animation: burn 0.8s infinite alternate;
+        }
+        @keyframes burn {
+            0% { transform: scale(1); opacity: 0.9; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* نافذة الرسالة Popup Modal */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 999;
+        }
+        .modal-content { 
+            background: #282a36; padding: 25px; border-radius: 15px; border: 1px solid #ff79c6; 
+            max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة الدخول -->
+    <div class="card" id="loginCard">
+        <h1>🔒 المفاجأة مقفولة!</h1>
+        <p>تاريخ تعارفنا يا قلبي ❤️ (اليوم/الشهر/السنة)</p>
+        <input type="text" id="passcode" placeholder="dd/mm/yyyy">
+        <button onclick="checkPass()">فتح المفاجأة ✨</button>
+    </div>
+
+    <!-- شاشة الاحتفال الرئيسية -->
+    <div class="card hidden" id="mainCard">
+        <div class="cake-container">
+            <div class="flame"></div>
+            <div class="cake"></div>
+        </div>
+        <h1>🎂 كل عام وأنتي بخير ❤️ 🎂</h1>
+        <p>سويتلك هالصفحة الصغيرة كرمال هل عيون الحلوين ✨</p>
+        
+        <div style="margin: 15px 0;">
+            <button class="msg-btn" onclick="showMsg('✨ أمنية من القلب', 'بتمنالك سنة جديدة مليانة نجاح، وراحة بال، وابتسامة ما تفارق وجهك الحلو.')">✨ أمنية من القلب</button>
+            <button class="msg-btn" style="background:#bd93f9;" onclick="showMsg('🌟 ليش أنتي مميزة؟', 'لأنك بتضيفي روح حلوة لكل مكان، ووجودك دائماً بيصنع فارق كبير بحياتي.')">🌟 ليش أنتي مميزة؟</button>
+            <button class="msg-btn" style="background:#ff79c6;" onclick="showMsg('💌 الرسالة الرئيسية', `طبعا انتي مفكرة انو انا ناسي متى يوم ميلادك وناسي متى ولد قمري ونور عيوني بس لا مو ناسيكي ولا ناسي يوم ميلادك هو صح انا باخر فترة كنت شوي زفت فيها بالتعامل معك وكانت طريقتي مو منيحة معك وكل شوي بزعلك مني وكل ما ترجعي تمام برجع ازعلك ونكد عليكي بس لازم نهز الورد لنشم ريحتوا وانتي مفكرة انا ناسي متى اول مرة حكينا فيها مع بعض بس لا مو ناسي 3/9/2024 صح اول مرة حكينا فيها مع بعض كنا غرباء وكنا ما بنعرف شي عن بعض وكنا مجرد زملاء ثم اصحاب وهلا شوفة عينك ما بقدر اقعد بدونك ثانية وحدة وكل مرة بقلك فيها ما عاد بدي حاكيكي بس بكون مجرد كلام متل ما بنحكي نحن مثل ضراط على بلاط ؛ صح انا مبين الك انو انا بنسى ومو مهتم لتفاصيلك بس انا متذكر متل انك بتحبي البشاميل من غير ما يبين في اللحمة والبامية بتحبيها حامية وورق العنب بتحبي طري مو محجر وبتحبيش اللحمة بكل انواعها وبتحبيش السمك بس بتحبي الروبيان والكابوريا وبنفسك تجربي الحبار وبتكرهي كلمة بيبي وبتحبي سمبوس اكتر منا كلنا وانك زعلانة على سفر امينة بس برضو بتتمنيلها الخير لانها نزلت مشان الجامعة.\n\nصحيح حبيبي بدي ذكرك تتذكري اول لقاء النا لما قعدنا برا بهل الحر هاد وانا وجهي صار احمر وانتي زي الهبلة خبطتي جبهتك بالطاولة وانا قلتلك شبك حبيبي 😂😂😂.\n\nالله يوفقك يا حياتي وكل عام وانتي بخير وعقبال ما اشوفك باعلى المراتب واشوفك بتحققي كل احلامك وتحققي يلي ببالك يارب. والله ما يحرمني منك ولا من طلتك يا قلبي انا والله مايفرق بينا والله يجمعنا على خير يارب.\n\nبرجع بعتذر منك يا قلبي انا مو قصدي ازعلك او نكد عليكي بس بقدرش اعيش بدون نكدك والله صح بخليكي تنكدي بس برضو ما بحب اشوفك منكدة وانتي عارفة هل اشي. والله ما يحرمنا منك يا قلبي ولا من هل يوم الجميل ولا من هل ذكريات يارب بحبك يا قلبي انا.`)">💌 الرسالة الرئيسية</button>
+        </div>
+
+        <p style="color: #f1fa8c; font-weight: bold; margin-top: 15px;">عجبتك المفاجأة؟ 🥺</p>
+        <div class="interactive-zone">
+            <button class="btn-yes" onclick="celebrateYes()">كتير! ❤️</button>
+            <button class="btn-no" id="noBtn" ontouchstart="moveNo()" onclick="moveNo()">لا 😜</button>
+        </div>
+    </div>
+
+    <!-- Popup Modal -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="color: #ff79c6; margin-top: 0; text-align: center;"></h2>
+            <p id="modalText" style="white-space: pre-line; line-height: 1.8;"></p>
+            <button onclick="closeMsg()" style="background: #6272a4; width: 100%; padding: 10px; margin-top: 15px;">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PASS = "3/9/2024";
+
+        function checkPass() {
+            const input = document.getElementById('passcode').value.trim();
+            if (input === CORRECT_PASS) {
+                document.getElementById('loginCard').classList.add('hidden');
+                document.getElementById('mainCard').classList.remove('hidden');
+                triggerConfetti(); // إطلاق زينة الاحتفال
+            } else {
+                alert('كلمة السر غير صحيحة 😅 حاولي مرة ثانية!');
+            }
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function celebrateYes() {
+            triggerConfetti();
+            showMsg('يسسس! 🥰', 'أحلى هدية هي ابتسامتك! كل سنة وأنتي سالمة ❤️');
+        }
+
+        function showMsg(title, text) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeMsg() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function moveNo() {
+            const btn = document.getElementById('noBtn');
+            const x = Math.random() * 120 - 60;
+            const y = Math.random() * 60 - 30;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+    </script>
+</body>
+</html>
